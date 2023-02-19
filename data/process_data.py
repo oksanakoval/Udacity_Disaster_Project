@@ -4,6 +4,13 @@ import numpy as np
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    INPUT 
+        messages_filepath: file with the twitter messages in csv format
+        categories_filepath: file with messages categories in csv format
+    OUTPUT
+        merged dataframe from messages and categories
+    '''
     # read messages file
     messages = pd.read_csv(messages_filepath)
     
@@ -16,6 +23,12 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    '''
+    INPUT 
+        df: merged dataframe from messages and categories
+    OUTPUT
+        cleaned dataframe
+    '''
     # create a dataframe of the 36 individual category columns
     categories = df['categories'].str.split(";",expand = True)
     
@@ -49,6 +62,11 @@ def clean_data(df):
     
 
 def save_data(df, database_filename):
+    '''
+    INPUT 
+        df: cleaned dataframe from messages and categories
+        database_filename: path to the sqlite database
+    '''    
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('msg_table', engine, index=False)  
 
