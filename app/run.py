@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar, Pie
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -26,11 +26,12 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('msg_table', engine)
+
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -42,6 +43,14 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+    
+    df_water_shelter_food = df[['id', 'message', 'water', 'shelter', 'food']]
+    
+    
+    water_counts = df['water'].sum()
+    shelter_counts = df['shelter'].sum()
+    food_counts = df['food'].sum()
+   
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -62,6 +71,33 @@ def index():
                 'xaxis': {
                     'title': "Genre"
                 }
+            }
+        },
+        
+        {
+            'data': [
+                Pie(
+                    values=genre_counts,
+                    labels=genre_names,
+                )
+            ],
+
+            'layout': {
+                'title': 'Shares of Message Categories',
+                
+            }
+        },
+        {
+            'data': [
+                Pie(
+                    values= [water_counts, shelter_counts, food_counts],
+                    labels= ['Water', 'Shelter', 'Food'],
+                )
+            ],
+
+            'layout': {
+                'title': 'Shares of Water, Shelter and Food messages',
+                
             }
         }
     ]
